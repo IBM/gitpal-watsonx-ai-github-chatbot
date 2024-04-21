@@ -1,77 +1,68 @@
-<!-- This should be the location of the title of the repository, normally the short name -->
-# repo-template
+<div align="left">
+  <img src="images/gitpal.png" alt="GitPal Logo" width="200">
+</div>
 
-<!-- Build Status, is a great thing to have at the top of your repository, it shows that you take your CI/CD as first class citizens -->
-<!-- [![Build Status](https://travis-ci.org/jjasghar/ibm-cloud-cli.svg?branch=master)](https://travis-ci.org/jjasghar/ibm-cloud-cli) -->
+## GitPal: Chat with Github Repository using IBM WatsonX, Langchain, FAISS and Streamlit (RAG)
 
-<!-- Not always needed, but a scope helps the user understand in a short sentance like below, why this repo exists -->
-## Scope
+This project facilitates conversational interaction with any public GitHub repository utilizing advanced technologies such as IBM WatsonX, Langchain, FAISS vector database, and Streamlit. It operates as an RAG (Retrieval Augmented Generation) application, enhancing the user experience with efficient code exploration and understanding.
 
-The purpose of this project is to provide a template for new open source repositories.
+## Features
 
-<!-- A more detailed Usage or detailed explaination of the repository here -->
-## Usage
+- **IBM WatsonX Integration**: Users input their IBM WatsonX API Key along with the GitHub Repository link.
+- **Repository Cloning and Chunking:** The specified repository is cloned locally and segmented into manageable chunks for processing.
+- **Embedding Conversion:** Utilizing Langchain, the code segments are transformed into embeddings.
+- **FAISS Vector Database:** The embeddings are stored in a FAISS vector database for efficient retrieval and querying.
+- **QA Retriever:** Langchain constructs a QA retriever, enabling users to engage in conversational queries related to their code.
 
-This repository contains some example best practices for open source repositories:
+## GitPal User Interface
 
-* [LICENSE](LICENSE)
-* [README.md](README.md)
-* [CONTRIBUTING.md](CONTRIBUTING.md)
-* [MAINTAINERS.md](MAINTAINERS.md)
-<!-- A Changelog allows you to track major changes and things that happen, https://github.com/github-changelog-generator/github-changelog-generator can help automate the process -->
-* [CHANGELOG.md](CHANGELOG.md)
+<div align="center">
+  <img src="images/gitpal_ui.png" alt="Ask-DOC UI">
+</div>
 
-> These are optional
+## Getting Started
 
-<!-- The following are OPTIONAL, but strongly suggested to have in your repository. -->
-* [dco.yml](.github/dco.yml) - This enables DCO bot for you, please take a look https://github.com/probot/dco for more details.
-* [travis.yml](.travis.yml) - This is a example `.travis.yml`, please take a look https://docs.travis-ci.com/user/tutorial/ for more details.
+1. Clone the repository:
 
-These may be copied into a new or existing project to make it easier for developers not on a project team to collaborate.
-
-<!-- A notes section is useful for anything that isn't covered in the Usage or Scope. Like what we have below. -->
-## Notes
-
-**NOTE: While this boilerplate project uses the Apache 2.0 license, when
-establishing a new repo using this template, please use the
-license that was approved for your project.**
-
-**NOTE: This repository has been configured with the [DCO bot](https://github.com/probot/dco).
-When you set up a new repository that uses the Apache license, you should
-use the DCO to manage contributions. The DCO bot will help enforce that.
-Please contact one of the IBM GH Org stewards.**
-
-<!-- Questions can be useful but optional, this gives you a place to say, "This is how to contact this project maintainers or create PRs -->
-If you have any questions or issues you can create a new [issue here][issues].
-
-Pull requests are very welcome! Make sure your patches are well tested.
-Ideally create a topic branch for every separate change you make. For
-example:
-
-1. Fork the repo
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Added some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
-
-## License
-
-All source files must include a Copyright and License header. The SPDX license header is 
-preferred because it can be easily scanned.
-
-If you would like to see the detailed LICENSE click [here](LICENSE).
-
-```text
-#
-# Copyright IBM Corp. {Year project was created} - {Current Year}
-# SPDX-License-Identifier: Apache-2.0
-#
 ```
-## Authors
+git clone https://github.com/IBM/gitpal-watsonx-ai-github-chatbot.git
+cd <your_project_directory>
+```
 
-Optionally, you may include a list of authors, though this is redundant with the built-in
-GitHub list of contributors.
+2. Create a new virtual environment using a tool like virtualenv or conda, and activate the environment:
 
-- Author: New OpenSource IBMer <new-opensource-ibmer@ibm.com>
+```
+python3 -m venv <name_of_virtual_env>
+source /venv/bin/activate
+```
 
-[issues]: https://github.com/IBM/repo-template/issues/new
+3. Install dependencies:
+
+```
+pip install -r requirements.txt
+```
+
+3. Run the Streamlit app:
+
+```
+streamlit run chatbot.py
+```
+
+5. Access the chat interface:
+
+Open your web browser and navigate to http://localhost:8501.
+
+- Input your IBM WatsonX API key and the name of your GitHub repository.
+- Engage with the chatbot by asking questions or providing instructions using natural language.
+
+### Limitations
+
+- Language Model Dependency: The chatbot's performance is contingent upon the accuracy and capabilities of the underlying language model.
+- Processing Time: Large codebases or repositories with intricate structures may incur longer processing times for chunking and embedding.
+- Response Quality: The accuracy and quality of responses are influenced by both the language model's accuracy and the effectiveness of code embeddings.
+
+### Run App with Streamlit Cloud
+
+[Launch App on Streamlit](https://gitpal.streamlit.app/)
+
+Feel free to contribute, provide feedback, or report issues via GitHub. Your contributions are valued and help enhance the functionality and usability of this project.
