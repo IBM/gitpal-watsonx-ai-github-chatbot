@@ -19,16 +19,16 @@ st.image("images/gitpal.png", width=200)
 
 
 def main():
-    if "genai_api_key" not in st.session_state:
-        genai_api_key_placeholder = st.empty()
-        genai_api_key = genai_api_key_placeholder.text_input(
+    if "watsonx_api_key" not in st.session_state:
+        watsonx_api_key_placeholder = st.empty()
+        watsonx_api_key = watsonx_api_key_placeholder.text_input(
             "IBM WatsonX API Key", type="password"
         )
-        if not genai_api_key:
+        if not watsonx_api_key:
             st.info("Please add your IBM WatsonX API key to continue.")
             st.stop()
-        genai_api_key_placeholder.empty()
-        st.session_state.genai_api_key = genai_api_key
+        watsonx_api_key_placeholder.empty()
+        st.session_state.watsonx_api_key = watsonx_api_key
 
     with st.sidebar:
         st.image("images/gitpal.png", width=300)
@@ -65,7 +65,7 @@ def main():
             with st.spinner("Processing your repository. This may take some time.."):
                 st.session_state.conversation_chain = (
                     st.session_state.embedder.get_conversation_chain(
-                        gen_ai_key=st.session_state.genai_api_key
+                        watsonx_api_key=st.session_state.watsonx_api_key
                     )
                 )
                 st.success("Processing completed. Ready to take your questions")

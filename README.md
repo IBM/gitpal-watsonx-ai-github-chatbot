@@ -42,7 +42,18 @@ source /venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3. Run the Streamlit app:
+4. Create `.env` file in the root of your project with following keys:
+
+```
+PROJECT_ID=<your_watsonx.ai_project_id>
+ENDPOINT_URL=<your_watsonx.ai_endpoint_url>
+PROMPT_MODEL_ID=meta-llama/llama-3-70b-instruct
+EMBEDDING_MODEL_ID=ibm/slate-125m-english-rtrvr
+```
+
+You can find the project_id as follows. Open the prompt lab in watsonx.ai. At the very top of the UI, there will be Projects / <project name> /. Click on the <project name> link. Then get the project_id from Project's Manage tab (Project -> Manage -> General -> Details).
+
+5. Run the Streamlit app:
 
 ```
 streamlit run chatbot.py

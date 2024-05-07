@@ -8,34 +8,28 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 import git
 import os
 from queue import Queue
+from dotenv import load_dotenv
 
 # from prompts import model_prompt, custom_question_prompt
 
 from prompts_llama3 import model_prompt, custom_question_prompt
 
-from genai import Client, Credentials
-from genai.extensions.langchain import LangChainEmbeddingsInterface
-from genai.schema import TextEmbeddingParameters
-from genai.extensions.langchain.chat_llm import LangChainChatInterface
-from genai.schema import (
-    DecodingMethod,
-    ModerationHAP,
-    ModerationParameters,
-    TextGenerationParameters,
-    TextGenerationReturnOptions,
-)
 
 from langchain.vectorstores.faiss import FAISS
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain.prompts import PromptTemplate
 
-model_name = "sentence-transformers/all-MiniLM-L6-v2"
-model_kwargs = {"device": "cpu"}
-allowed_extensions = [".py", ".ipynb", ".md"]
+from ibm_watsonx_ai.metanames import EmbedTextParamsMetaNames
+from langchain_ibm import WatsonxEmbeddings
+from ibm_watsonx_ai.metanames import GenTextParamsMetaNames as GenParams
+from ibm_watsonx_ai.foundation_models.utils.enums import DecodingMethods
+from langchain.llms import WatsonxLLM
+from ibm_watsonx_ai.metanames import GenTextReturnOptMetaNames
 
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import ConversationalRetrievalChain
+load_dotenv()
+
+allowed_extensions = [".py", ".ipynb", ".md"]
 
 
 class Embedder:
@@ -91,16 +85,20 @@ class Embedder:
                     os.rmdir(dir_path)
             os.rmdir(path)
 
-    def get_conversation_chain(self, gen_ai_key):
-        credentials = Credentials(api_key=gen_ai_key)
-        client = Client(credentials=credentials)
+    def get_conversation_chain(self, watsonx_api_key):
         # Create vector db
         docs = self.extract_all_files()
         chunked_documents = self.chunk_files(docs)
-        embeddings = LangChainEmbeddingsInterface(
-            client=client,
-            model_id="sentence-transformers/all-minilm-l6-v2",
-            parameters=TextEmbeddingParameters(truncate_input_tokens=True),
+        embed_params = {
+            EmbedTextParamsMetaNames.TRUNCATE_INPUT_TOKENS: 3,
+            EmbedTextParamsMetaNames.RETURN_OPTIONS: {"input_text": True},
+        }
+        embeddings = WatsonxEmbeddings(
+            model_id=os.getenv("EMBEDDING_MODEL_ID"),
+            url=os.getenv("ENDPOINT_URL"),
+            apikey=watsonx_api_key,
+            project_id=os.getenv("PROJECT_ID"),
+            params=embed_params,
         )
         vector_store = FAISS.from_documents(
             documents=chunked_documents, embedding=embeddings
@@ -125,33 +123,28 @@ class Embedder:
         memory = ConversationBufferMemory(
             memory_key="chat_history", return_messages=True
         )
-        credentials = Credentials(
-            api_key=gen_ai_key,
-            api_endpoint="https://bam-api.res.ibm.com/v2/text/chat?version=2024-03-19",
-        )
-        client = Client(credentials=credentials)
 
-        llm = LangChainChatInterface(
-            model_id="meta-llama/llama-3-70b-instruct",
-            client=client,
-            parameters=TextGenerationParameters(
-                decoding_method=DecodingMethod.GREEDY,
-                max_new_tokens=2040,
-                min_new_tokens=10,
-                temperature=0.2,
-                top_k=40,
-                top_p=0.9,
-                return_options=TextGenerationReturnOptions(
-                    input_text=False, input_tokens=True
-                ),
-            ),
-            moderations=ModerationParameters(
-                # Threshold is set to very low level to flag everything (testing purposes)
-                # or set to True to enable HAP with default settings
-                hap=ModerationHAP(input=True, output=False, threshold=0.01)
-            ),
-        )
+        return_options = {
+            GenTextReturnOptMetaNames.INPUT_TEXT: False,
+            GenTextReturnOptMetaNames.INPUT_TOKENS: True,
+        }
+        parameters = {
+            GenParams.DECODING_METHOD: DecodingMethods.GREEDY,
+            GenParams.MAX_NEW_TOKENS: 2040,
+            GenParams.MIN_NEW_TOKENS: 10,
+            GenParams.TEMPERATURE: 0.2,
+            GenParams.TOP_K: 40,
+            GenParams.TOP_P: 0.9,
+            GenParams.RETURN_OPTIONS: return_options,
+        }
 
+        llm = WatsonxLLM(
+            model_id=os.getenv("PROMPT_MODEL_ID"),
+            url=os.getenv("ENDPOINT_URL"),
+            apikey=watsonx_api_key,
+            project_id=os.getenv("PROJECT_ID"),
+            params=parameters,
+        )
         conversation_chain = ConversationalRetrievalChain.from_llm(
             llm=llm,
             retriever=retriever,
@@ -166,7 +159,7 @@ class Embedder:
 
     def retrieve_results(self, query, conversation_chain):
         chat_history = list(self.MyQueue.queue)
-        # qa = self.get_conversation_chain(vector_store, gen_ai_key)
+        # qa = self.get_conversation_chain(vector_store, watsonx_api_key)
         result = conversation_chain({"question": query, "chat_history": chat_history})
         self.add_to_queue((query, result["answer"]))
         return result["answer"]
