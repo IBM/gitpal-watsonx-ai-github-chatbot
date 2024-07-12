@@ -49,6 +49,9 @@ PROJECT_ID=<your_watsonx.ai_project_id>
 ENDPOINT_URL=<your_watsonx.ai_endpoint_url>
 PROMPT_MODEL_ID=meta-llama/llama-3-70b-instruct
 EMBEDDING_MODEL_ID=ibm/slate-125m-english-rtrvr
+
+API_KEY=<your watsonx.ai api key here>
+GIT_URL=<your git repo here as http url>
 ```
 
 You can find the project_id as follows. Open the prompt lab in watsonx.ai. At the very top of the UI, there will be Projects / <project name> /. Click on the <project name> link. Then get the project_id from Project's Manage tab (Project -> Manage -> General -> Details).

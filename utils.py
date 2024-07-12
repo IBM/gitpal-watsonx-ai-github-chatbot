@@ -61,7 +61,7 @@ class Embedder:
                             os.path.join(dirpath, file), encoding="utf-8"
                         )
                         self.docs.extend(loader.load_and_split())
-                    except Exception as e:
+                    except Exception:
                         pass
         self.delete_directory(self.clone_path)
         return self.docs
@@ -85,7 +85,7 @@ class Embedder:
                     os.rmdir(dir_path)
             os.rmdir(path)
 
-    def get_conversation_chain(self, watsonx_api_key):
+    def get_conversation_chain(self):
         # Create vector db
         docs = self.extract_all_files()
         chunked_documents = self.chunk_files(docs)
@@ -96,7 +96,7 @@ class Embedder:
         embeddings = WatsonxEmbeddings(
             model_id=os.getenv("EMBEDDING_MODEL_ID"),
             url=os.getenv("ENDPOINT_URL"),
-            apikey=watsonx_api_key,
+            apikey=os.getenv("API_KEY"),
             project_id=os.getenv("PROJECT_ID"),
             params=embed_params,
         )
@@ -141,10 +141,12 @@ class Embedder:
         llm = WatsonxLLM(
             model_id=os.getenv("PROMPT_MODEL_ID"),
             url=os.getenv("ENDPOINT_URL"),
-            apikey=watsonx_api_key,
+            apikey=os.getenv("API_KEY"),
             project_id=os.getenv("PROJECT_ID"),
             params=parameters,
         )
+
+
         conversation_chain = ConversationalRetrievalChain.from_llm(
             llm=llm,
             retriever=retriever,

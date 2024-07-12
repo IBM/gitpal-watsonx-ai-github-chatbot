@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+import os
 import streamlit as st
 import utils
 import time
-import os
 
 st.set_page_config(
     page_title="GitPal",
@@ -19,33 +19,22 @@ st.image("images/gitpal.png", width=200)
 
 
 def main():
-    if "watsonx_api_key" not in st.session_state:
-        watsonx_api_key_placeholder = st.empty()
-        watsonx_api_key = watsonx_api_key_placeholder.text_input(
-            "IBM WatsonX API Key", type="password"
-        )
-        if not watsonx_api_key:
-            st.info("Please add your IBM WatsonX API key to continue.")
-            st.stop()
-        watsonx_api_key_placeholder.empty()
-        st.session_state.watsonx_api_key = watsonx_api_key
 
     with st.sidebar:
         st.image("images/gitpal.png", width=300)
         st.title(""":orange[Welcome to GitPal!]""")
 
         st.markdown(
-            "ISC-CodeConnect is an advanced platform built using IBM WatsonX. "
-            "It answers questions related to ISC Github Repositories."
-            "Choose ISC repositories, and let CodeConnect hatch profound insights from repositories, all powered by cutting-edge IBM WatsonX Gen AI"
+            "Chat with your git repo"
         )
-
         if "user_repo" not in st.session_state:
-            user_repo = st.text_input(
+            user_repo=os.getenv("GIT_URL")
+            st.info("Git repo: " + user_repo)
+            if not user_repo:
+                user_repo = st.text_input(
                 "Github Link to public repository",
                 "",
-            )
-            if not user_repo:
+                )
                 st.info("Please add Github repository link to continue.")
                 st.stop()
             st.session_state.user_repo = user_repo
@@ -64,9 +53,7 @@ def main():
             ## Chunk and Create DB
             with st.spinner("Processing your repository. This may take some time.."):
                 st.session_state.conversation_chain = (
-                    st.session_state.embedder.get_conversation_chain(
-                        watsonx_api_key=st.session_state.watsonx_api_key
-                    )
+                    st.session_state.embedder.get_conversation_chain()
                 )
                 st.success("Processing completed. Ready to take your questions")
 
